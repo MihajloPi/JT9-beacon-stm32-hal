@@ -1,0 +1,79 @@
+cmake_minimum_required(VERSION 3.22)
+
+#
+# This file is generated only once,
+# and is not re-generated if converter is called multiple times.
+#
+# User is free to modify the file as much as necessary
+#
+
+# Setup compiler settings
+set(CMAKE_C_STANDARD 17)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS ON)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS ON)
+
+# Define the build type
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug")
+endif()
+
+# Set the project name
+set(CMAKE_PROJECT_NAME stm32-gps-oled-cpp)
+
+# Enable compile command to ease indexing with e.g. clangd
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+
+# Core project settings — declare all languages up front
+project(${CMAKE_PROJECT_NAME} LANGUAGES C CXX ASM)
+message("Build type: " ${CMAKE_BUILD_TYPE})
+
+# Create an executable object type
+add_executable(${CMAKE_PROJECT_NAME})
+
+# Add STM32CubeMX generated sources
+add_subdirectory(cmake/stm32cubemx)
+
+# Link directories setup
+target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    # Add user defined library search paths
+)
+
+# Automatically collect all C and C++ sources from the Src directory
+file(GLOB_RECURSE USER_SOURCES CONFIGURE_DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src/*.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src/*.cpp
+)
+
+# system_stm32f4xx.c is already compiled by the STM32_Drivers OBJECT library
+list(FILTER USER_SOURCES EXCLUDE REGEX 
+    "system_stm32f4xx\\.c$"
+)
+
+# Add sources to executable
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE
+    ${USER_SOURCES}
+)
+
+# Add include paths
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src
+    ${CMAKE_CURRENT_SOURCE_DIR}/Inc
+)
+
+# Add project symbols (macros)
+target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
+    # Add user defined symbols
+)
+
+# Remove spurious libob.a dependency that appears when mixing C and C++ files
+string(REPLACE "ob" "" CMAKE_C_IMPLICIT_LINK_LIBRARIES "${CMAKE_C_IMPLICIT_LINK_LIBRARIES}")
+
+# Add linked libraries
+target_link_libraries(${CMAKE_PROJECT_NAME}
+    stm32cubemx
+    # Add user defined libraries
+)
