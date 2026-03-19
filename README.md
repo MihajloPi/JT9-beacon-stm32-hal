@@ -1,5 +1,7 @@
 # JT9 Beacon — STM32 HAL
 
+**WORK IN PROGRESS!**
+
 A JT9-1 digital-mode beacon for the STM32F411 (Black Pill), written in C++20
 against the STM32 HAL.  The firmware encodes an arbitrary free-text message
 into 85 JT9 symbols, drives a **Si5351** clock generator over I²C to frequency-shift
