@@ -112,7 +112,7 @@ public:
 
 private:
     Si5351            &_si5351;
-    static Beacon *_instance; // set by the constructor, used by the callback
+    //static Beacon *_instance; // set by the constructor, used by the callback
     TIM_HandleTypeDef *_htim;
     GPIO_TypeDef      *_ledPort;
     uint16_t           _ledPin;

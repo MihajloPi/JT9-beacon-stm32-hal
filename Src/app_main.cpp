@@ -28,13 +28,13 @@ RotaryEncoder encoder(
   // Optional 4th arg: debounce window in ms, default is 10
 );
 Beacon beacon(si5351, &htim2, GPIOC, GPIO_PIN_13);
-/*
+
 extern "C" {
 	void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		beacon.notifySymbolClock(htim);
 	}
 }
-*/
+
 char buffer[30] = "";
 char wspr_poruka[] = "YT1GS KN03"; // Up to 13 chars: A-Z 0-9 space + - . / ?
 const uint64_t TX_FREQ_HZ  = 14078600ULL; // Dial frequency, Hz
@@ -79,7 +79,7 @@ int mainCpp() {
 
     si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25000000, 0);
     si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA);
-    si5351.output_enable(SI5351_CLK0, 1);
+    si5351.output_enable(SI5351_CLK0, 0);
 
     beacon.init(TX_FREQ_HZ, XO_FREQ_HZ, CORRECTION);
     beacon.transmit(wspr_poruka);
@@ -104,6 +104,7 @@ int mainCpp() {
             ssd1306_UpdateScreen(&hi2c1);
 
             si5351.set_freq(frequency * 1e2, SI5351_CLK0);
+            si5351.output_enable(SI5351_CLK0, 1);
 
     		previous_update_display_time = HAL_GetTick();
     	}

@@ -8,7 +8,7 @@
 #include "Beacon.h"
 
 // Static member definition
-Beacon *Beacon::_instance = nullptr;
+//Beacon *Beacon::_instance = nullptr;
 
 // ---------------------------------------------------------------------------
 // Constructor
@@ -24,7 +24,7 @@ Beacon::Beacon(Si5351 &si5351,
       _freqHz(0),
       _symbolTick(false)
 {
-	_instance = this; // last constructed instance wins
+//	_instance = this; // last constructed instance wins
 }
 
 // ---------------------------------------------------------------------------
@@ -111,7 +111,7 @@ void Beacon::notifySymbolClock(TIM_HandleTypeDef *htim)
         _symbolTick = true;
     }
 }
-
+/*
 extern "C"
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -119,3 +119,4 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         Beacon::_instance->notifySymbolClock(htim);
     }
 }
+*/
