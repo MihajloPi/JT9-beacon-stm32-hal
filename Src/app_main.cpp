@@ -28,7 +28,13 @@ RotaryEncoder encoder(
   // Optional 4th arg: debounce window in ms, default is 10
 );
 Beacon beacon(si5351, &htim2, GPIOC, GPIO_PIN_13);
-
+/*
+extern "C" {
+	void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+		beacon.notifySymbolClock(htim);
+	}
+}
+*/
 char buffer[30] = "";
 char wspr_poruka[] = "YT1GS KN03"; // Up to 13 chars: A-Z 0-9 space + - . / ?
 const uint64_t TX_FREQ_HZ  = 14078600ULL; // Dial frequency, Hz
