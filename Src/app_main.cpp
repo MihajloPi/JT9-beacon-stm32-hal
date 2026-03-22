@@ -17,6 +17,8 @@ extern "C" {
 	#include "gpio.h"
 						//User C libraries
     #include "ssd1306.h"
+	#include "st7789.h"
+	#include "tft_fonts.h"
     #include "fonts.h"
 }
 
@@ -62,6 +64,11 @@ int mainCpp() {
 
     ssd1306_Init(&hi2c1);
     ssd1306_Fill(Black);
+
+    ST7789_Init();
+    ST7789_SetRotation(2);
+    ST7789_Fill_Color(GREEN);
+    ST7789_WriteString(0, 0, "Hello world!", TFT_Font_16x26, GREEN, BLACK);
 
     ssd1306_SetCursor(0, 0);
     ssd1306_WriteString("Frequency: ", Font_11x18, White);

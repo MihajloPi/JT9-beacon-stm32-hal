@@ -59,6 +59,20 @@ int mainCpp(void);
 /* Private defines -----------------------------------------------------------*/
 #define LED_ERROR_Pin GPIO_PIN_13
 #define LED_ERROR_GPIO_Port GPIOC
+#define ST7789_DC_Pin GPIO_PIN_2
+#define ST7789_DC_GPIO_Port GPIOA
+#define ST7789_RST_Pin GPIO_PIN_3
+#define ST7789_RST_GPIO_Port GPIOA
+#define ST7789_CS_Pin GPIO_PIN_4
+#define ST7789_CS_GPIO_Port GPIOA
+#define DDS_CLK_Pin GPIO_PIN_0
+#define DDS_CLK_GPIO_Port GPIOB
+#define DDS_WD_Pin GPIO_PIN_1
+#define DDS_WD_GPIO_Port GPIOB
+#define DDS_DATA_Pin GPIO_PIN_2
+#define DDS_DATA_GPIO_Port GPIOB
+#define DDS_RESET_Pin GPIO_PIN_10
+#define DDS_RESET_GPIO_Port GPIOB
 #define ENCODER_SWITCH_Pin GPIO_PIN_15
 #define ENCODER_SWITCH_GPIO_Port GPIOB
 #define ENCODER_DATA_Pin GPIO_PIN_8
