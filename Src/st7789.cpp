@@ -324,7 +324,7 @@ void ST7789::DrawFilledTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t 
     int16_t yi1 = (y2>=y1)?1:-1, yi2 = yi1;
 
     if (dx >= dy) { xi1=0; yi2=0; }
-    else          { xi2=0; yi1=0; std::swap(dx,dy); }
+    else          { xi2=0; yi1=0; int16_t temp = dx; dx = dy; dy = temp; }
 
     int16_t num = dx/2, pixels = dx;
     for (int16_t p = 0; p <= pixels; p++) {
