@@ -67,8 +67,8 @@ int mainCpp() {
 
     ST7789_Init();
     ST7789_SetRotation(2);
-    ST7789_Fill_Color(GREEN);
-    ST7789_WriteString(0, 0, "Hello world!", TFT_Font_16x26, GREEN, BLACK);
+    ST7789_Fill_Color(RED);
+    ST7789_WriteString(0, 0, "Hello world!", TFT_Font_16x26, WHITE, BLACK);
 
     ssd1306_SetCursor(0, 0);
     ssd1306_WriteString("Frequency: ", Font_11x18, White);
@@ -111,7 +111,7 @@ int mainCpp() {
             ssd1306_UpdateScreen(&hi2c1);
 
             si5351.set_freq(frequency * 1e2, SI5351_CLK0);
-            si5351.output_enable(SI5351_CLK0, 1);
+            //si5351.output_enable(SI5351_CLK0, 1);
 
     		previous_update_display_time = HAL_GetTick();
     	}
