@@ -67,7 +67,7 @@ int mainCpp() {
 
     ST7789_Init();
     ST7789_SetRotation(2);
-    ST7789_Fill_Color(BLACK);
+    ST7789_Fill_Color(WHITE);
     //ST7789_WriteString(0, 0, "Hello world!", TFT_Font_16x26, WHITE, BLACK);
 
     ssd1306_SetCursor(0, 0);
@@ -84,9 +84,9 @@ int mainCpp() {
     ssd1306_WriteString(wspr_poruka, Font_11x18, White);
     ssd1306_UpdateScreen(&hi2c1);
 
-    ST7789_WriteString(0, 0, "Frequency: ", TFT_Font_16x26, RED, BLACK);
-    ST7789_WriteString(176, 0, buffer, TFT_Font_16x26, GREEN, BLACK);
-    ST7789_WriteString(0, 0, wspr_poruka, TFT_Font_16x26, GREEN, BLACK);
+    ST7789_WriteString(0, 0, "Frequency: ", TFT_Font_16x26, RED, WHITE);
+    ST7789_WriteString(0, 176, buffer, TFT_Font_16x26, GREEN, WHITE);
+    ST7789_WriteString(16, 0, wspr_poruka, TFT_Font_16x26, GREEN, WHITE);
 
     si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25000000, 0);
     si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA);
@@ -114,6 +114,9 @@ int mainCpp() {
 
             ssd1306_WriteString(buffer, Font_11x18, White);
             ssd1306_UpdateScreen(&hi2c1);
+
+            ST7789_WriteString(0, 0, "Frequency: ", TFT_Font_16x26, RED, BLACK);
+            ST7789_WriteString(176, 0, buffer, TFT_Font_16x26, GREEN, BLACK);
 
             si5351.set_freq(frequency * 1e2, SI5351_CLK0);
             //si5351.output_enable(SI5351_CLK0, 1);
