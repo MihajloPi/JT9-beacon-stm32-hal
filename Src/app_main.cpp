@@ -67,8 +67,8 @@ int mainCpp() {
 
     ST7789_Init();
     ST7789_SetRotation(2);
-    ST7789_Fill_Color(RED);
-    ST7789_WriteString(0, 0, "Hello world!", TFT_Font_16x26, WHITE, BLACK);
+    ST7789_Fill_Color(BLACK);
+    //ST7789_WriteString(0, 0, "Hello world!", TFT_Font_16x26, WHITE, BLACK);
 
     ssd1306_SetCursor(0, 0);
     ssd1306_WriteString("Frequency: ", Font_11x18, White);
@@ -84,6 +84,10 @@ int mainCpp() {
     ssd1306_WriteString(wspr_poruka, Font_11x18, White);
     ssd1306_UpdateScreen(&hi2c1);
 
+    ST7789_WriteString(0, 0, "Frequency: ", TFT_Font_16x26, RED, BLACK);
+    ST7789_WriteString(176, 0, buffer, TFT_Font_16x26, GREEN, BLACK);
+    ST7789_WriteString(0, 0, wspr_poruka, TFT_Font_16x26, GREEN, BLACK);
+
     si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25000000, 0);
     si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA);
     si5351.output_enable(SI5351_CLK0, 0);
@@ -92,6 +96,7 @@ int mainCpp() {
     beacon.transmit(wspr_poruka);
 
     ssd1306_Fill(Black);
+    ST7789_Fill_Color(BLACK);
 
     while(1) {
         // Your logic
