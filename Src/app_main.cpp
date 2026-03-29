@@ -10,6 +10,7 @@
 #include "st7789.h"
 #include "ssd1306.h"
 #include "tft_fonts.h"
+#include "TinyGPSPlus.h"
 
 extern "C" {
                         // HAL libraries
@@ -61,7 +62,7 @@ extern "C" {
 static char buffer[30] = "";
 static char wspr_poruka[] = "YT1GS KN03";
 
-static constexpr uint64_t TX_FREQ_HZ = 14078600ULL;
+static constexpr uint64_t TX_FREQ_HZ = 28079600ULL;
 static constexpr uint32_t XO_FREQ_HZ = 0;
 static constexpr int32_t  CORRECTION  = 0;
 

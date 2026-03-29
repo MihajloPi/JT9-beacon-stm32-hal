@@ -5,6 +5,9 @@
 #include <cstdint>
 #include <cstddef>
 
+
+#define USE_DMA
+
 /* -----------------------------------------------------------------------
  * RGB565 colour constants
  * --------------------------------------------------------------------- */
@@ -41,8 +44,11 @@ namespace Color {
  * --------------------------------------------------------------------- */
 class ST7789 {
 public:
+#ifdef USE_DMA
     /* DMA: minimum transfer size to bother using DMA over blocking SPI  */
     static constexpr uint16_t DMA_MIN_SIZE = 16;
+
+#endif
 
     /* DMA framebuffer strip height — increase if you have spare RAM      */
     static constexpr uint16_t HOR_LEN = 5;

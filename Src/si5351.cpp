@@ -40,8 +40,8 @@
  *            by one bit as required by the HAL API.
  */
 Si5351::Si5351(I2C_HandleTypeDef *hi2c, uint8_t i2c_addr)
-    : hi2c(hi2c),
-      i2c_bus_addr((uint8_t)(i2c_addr << 1))
+    : i2c_bus_addr((uint8_t)(i2c_addr << 1)),
+	  hi2c(hi2c)
 {
     xtal_freq[0] = SI5351_XTAL_FREQ;
 

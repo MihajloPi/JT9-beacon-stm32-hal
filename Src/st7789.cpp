@@ -1,6 +1,7 @@
 #include "st7789.h"
 #include <algorithm>
 
+
 /* =========================================================================
  * Register map (local to this translation unit)
  * ======================================================================= */
@@ -181,7 +182,6 @@ void ST7789::FillColor(uint16_t color)
     SetAddressWindow(0, 0, _width - 1, _height - 1);
     Select();
 
-#ifdef USE_DMA
     /* Byte-swap before storing so DMA sends bytes in the correct wire order */
     const uint16_t swapped = Swap16(color);
     std::fill_n(_dispBuf, _width * HOR_LEN, swapped);
@@ -189,11 +189,6 @@ void ST7789::FillColor(uint16_t color)
     for (uint16_t i = 0; i < _height / HOR_LEN; i++)
         WriteData(reinterpret_cast<const uint8_t *>(_dispBuf),
                   _width * HOR_LEN * sizeof(uint16_t));
-#else
-    uint8_t data[2] = { uint8_t(color >> 8), uint8_t(color) };
-    for (uint32_t i = 0; i < uint32_t(_width) * _height; i++)
-        HAL_SPI_Transmit(_spi, data, sizeof(data), HAL_MAX_DELAY);
-#endif
 
     UnSelect();
 }
