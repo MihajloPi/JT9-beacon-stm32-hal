@@ -118,8 +118,8 @@ int mainCpp()
 
     /* --- Si5351 + beacon init ------------------------------------------ */
     si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25000000, 0);
-    si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA);
-    si5351.output_enable(SI5351_CLK0, 0);
+    si5351.driveStrength(SI5351_CLK0, SI5351_DRIVE_8MA);
+    si5351.outputEnable(SI5351_CLK0, 0);
 
     /* --- AD9850 DDS init ----------------------------------------------- */
     dds.begin();
@@ -148,7 +148,7 @@ int mainCpp()
             formatFrequency(frequency);
             updateDisplays();
 
-            si5351.set_freq(frequency * 100ULL, SI5351_CLK0);
+            si5351.setFreq(frequency * 100ULL, SI5351_CLK0);
             dds.setFrequency(static_cast<float>(frequency));
             dds.outputEnable(true);
             // si5351.output_enable(SI5351_CLK0, 1);

@@ -57,9 +57,9 @@ bool Beacon::init(uint64_t freqHz, uint32_t xoFreqHz, int32_t correction)
 
         // Pre-tune to symbol 0 and set drive strength.  Leave RF off until
         // transmit() is called so the PA is not keyed up prematurely.
-        _osc.si5351->set_freq(symbolFreqCentihz(0), SI5351_CLK0);
-        _osc.si5351->drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA);
-        _osc.si5351->output_enable(SI5351_CLK0, 0);
+        _osc.si5351->setFreq(symbolFreqCentihz(0), SI5351_CLK0);
+        _osc.si5351->driveStrength(SI5351_CLK0, SI5351_DRIVE_8MA);
+        _osc.si5351->outputEnable(SI5351_CLK0, 0);
     }
     else // OscType::AD9850
     {
@@ -146,7 +146,7 @@ void Beacon::rfEnable(bool enable)
 {
     if (_oscType == OscType::Si5351)
     {
-        _osc.si5351->output_enable(SI5351_CLK0, enable ? 1 : 0);
+        _osc.si5351->outputEnable(SI5351_CLK0, enable ? 1 : 0);
     }
     else // OscType::AD9850
     {
@@ -158,7 +158,7 @@ void Beacon::setSymbolFreq(uint8_t symbol)
 {
     if (_oscType == OscType::Si5351)
     {
-        _osc.si5351->set_freq(symbolFreqCentihz(symbol), SI5351_CLK0);
+        _osc.si5351->setFreq(symbolFreqCentihz(symbol), SI5351_CLK0);
     }
     else // OscType::AD9850
     {

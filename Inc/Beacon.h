@@ -95,7 +95,7 @@ public:
     /// Beacon::init() will call AD9850::begin() and AD9850::reset() internally.
     ///
     /// @note  The AD9850 driver silences the carrier between transmissions via
-    ///        AD9850::output_enable(false), which writes a zero tuning word
+    ///        AD9850::outputEnable(false), which writes a zero tuning word
     ///        without overwriting the last programmed frequency.  If your
     ///        hardware has an additional MUTE/enable line, drive it separately.
     ///
@@ -177,7 +177,7 @@ private:
     // -----------------------------------------------------------------------
 
     /// Enable or disable the RF carrier.
-    /// Si5351: uses output_enable().
+    /// Si5351: uses outputEnable().
     /// AD9850: writes 0 Hz to silence, or the current dial frequency to unmute.
     void rfEnable(bool enable);
 
