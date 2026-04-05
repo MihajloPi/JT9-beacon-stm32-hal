@@ -7,44 +7,71 @@
 
 #include "Beacon.h"
 
-// Static member definition
-//Beacon *Beacon::_instance = nullptr;
+// ---------------------------------------------------------------------------
+// Constructors
+// ---------------------------------------------------------------------------
 
-// ---------------------------------------------------------------------------
-// Constructor
-// ---------------------------------------------------------------------------
-Beacon::Beacon(Si5351 &si5351,
+Beacon::Beacon(Si5351            &si5351,
                TIM_HandleTypeDef *htim,
                GPIO_TypeDef      *ledPort,
                uint16_t           ledPin)
-    : _si5351(si5351),
+    : _oscType(OscType::Si5351),
       _htim(htim),
       _ledPort(ledPort),
       _ledPin(ledPin),
       _freqHz(0),
       _symbolTick(false)
 {
-//	_instance = this; // last constructed instance wins
+    _osc.si5351 = &si5351;
+}
+
+Beacon::Beacon(AD9850             &ad9850,
+               TIM_HandleTypeDef  *htim,
+               GPIO_TypeDef       *ledPort,
+               uint16_t            ledPin)
+    : _oscType(OscType::AD9850),
+      _htim(htim),
+      _ledPort(ledPort),
+      _ledPin(ledPin),
+      _freqHz(0),
+      _symbolTick(false)
+{
+    _osc.ad9850 = &ad9850;
 }
 
 // ---------------------------------------------------------------------------
 // init
 // ---------------------------------------------------------------------------
+
 bool Beacon::init(uint64_t freqHz, uint32_t xoFreqHz, int32_t correction)
 {
     _freqHz = freqHz;
 
-    // Initialise the Si5351.  init() waits for SYS_INIT to clear internally,
-    // then applies crystal load, reference frequency, and correction.
-    if (!_si5351.init(SI5351_CRYSTAL_LOAD_8PF, xoFreqHz, correction)) {
-        return false; // Si5351 not found on I2C bus
-    }
+    if (_oscType == OscType::Si5351)
+    {
+        // Si5351::init() waits for SYS_INIT to clear, applies crystal load,
+        // reference frequency, and the ppb correction.
+        if (!_osc.si5351->init(SI5351_CRYSTAL_LOAD_8PF, xoFreqHz, correction)) {
+            return false; // Si5351 not found on I²C bus
+        }
 
-    // Pre-set the output frequency and drive strength; leave RF disabled
-    // until transmit() is called so we don't key up the PA prematurely.
-    _si5351.set_freq(symbolFreq(0), SI5351_CLK0);
-    _si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA);
-    _si5351.output_enable(SI5351_CLK0, 0);
+        // Pre-tune to symbol 0 and set drive strength.  Leave RF off until
+        // transmit() is called so the PA is not keyed up prematurely.
+        _osc.si5351->set_freq(symbolFreqCentihz(0), SI5351_CLK0);
+        _osc.si5351->drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA);
+        _osc.si5351->output_enable(SI5351_CLK0, 0);
+    }
+    else // OscType::AD9850
+    {
+        // xoFreqHz and correction are not used for the AD9850: the reference
+        // clock is fixed at construction time via AD9850::AD9850(..., refClockHz).
+        // begin() configures the GPIO pins; reset() puts the chip in serial mode.
+        _osc.ad9850->begin();
+        _osc.ad9850->reset();
+
+        // Silence the output until transmit() is called.
+        _osc.ad9850->setFrequency(0.0f);
+    }
 
     // Ensure the LED is off.
     HAL_GPIO_WritePin(_ledPort, _ledPin, GPIO_PIN_RESET);
@@ -60,6 +87,7 @@ bool Beacon::init(uint64_t freqHz, uint32_t xoFreqHz, int32_t correction)
 // ---------------------------------------------------------------------------
 // transmit
 // ---------------------------------------------------------------------------
+
 bool Beacon::transmit(char *message)
 {
     // Encode the message; returns false if any characters were invalid.
@@ -76,26 +104,23 @@ bool Beacon::transmit(char *message)
     }
 
     // Enable RF output and the TX indicator.
-    _si5351.output_enable(SI5351_CLK0, 1);
+    rfEnable(true);
     HAL_GPIO_WritePin(_ledPort, _ledPin, GPIO_PIN_SET);
 
     for (uint8_t i = 0; i < JT9::SYMBOL_COUNT; i++) {
-        // Set the Si5351 to the frequency for this symbol.
-        _si5351.set_freq(symbolFreq(_txBuffer[i]), SI5351_CLK0);
+        // Tune the oscillator to the frequency for this symbol.
+        setSymbolFreq(_txBuffer[i]);
 
         // Wait for the next timer tick, then clear the flag.
         _symbolTick = false;
         while (!_symbolTick) {
             // Spin — the CPU is otherwise idle between symbols.
-            // Insert __WFI() here if you want to sleep between ticks:
-            //   __WFI();
-            // Be aware that __WFI() may delay the wakeup by one tick if the
-            // interrupt fires before the sleep instruction in some pipelines.
+            // Replace with __WFI() to sleep; see caveat in original header.
         }
     }
 
     // Disable RF output and the TX indicator.
-    _si5351.output_enable(SI5351_CLK0, 0);
+    rfEnable(false);
     HAL_GPIO_WritePin(_ledPort, _ledPin, GPIO_PIN_RESET);
 
     return valid;
@@ -104,6 +129,7 @@ bool Beacon::transmit(char *message)
 // ---------------------------------------------------------------------------
 // notifySymbolClock
 // ---------------------------------------------------------------------------
+
 void Beacon::notifySymbolClock(TIM_HandleTypeDef *htim)
 {
     // Only act on the timer this beacon owns.
@@ -111,12 +137,31 @@ void Beacon::notifySymbolClock(TIM_HandleTypeDef *htim)
         _symbolTick = true;
     }
 }
-/*
-extern "C"
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+
+// ---------------------------------------------------------------------------
+// Private helpers
+// ---------------------------------------------------------------------------
+
+void Beacon::rfEnable(bool enable)
 {
-    if (Beacon::_instance != nullptr) {
-        Beacon::_instance->notifySymbolClock(htim);
+    if (_oscType == OscType::Si5351)
+    {
+        _osc.si5351->output_enable(SI5351_CLK0, enable ? 1 : 0);
+    }
+    else // OscType::AD9850
+    {
+        _osc.ad9850->outputEnable(enable);
     }
 }
-*/
+
+void Beacon::setSymbolFreq(uint8_t symbol)
+{
+    if (_oscType == OscType::Si5351)
+    {
+        _osc.si5351->set_freq(symbolFreqCentihz(symbol), SI5351_CLK0);
+    }
+    else // OscType::AD9850
+    {
+        _osc.ad9850->setFrequency(symbolFreqHz(symbol));
+    }
+}

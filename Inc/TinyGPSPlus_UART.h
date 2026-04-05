@@ -120,9 +120,9 @@ public:
     TinyGPSPlusUART_IRQ(UART_HandleTypeDef &huart, uint16_t bufSize = 256)
         : _huart(huart)
         , _bufSize(bufSize)
+        , _dmaPrevPos(0)
         , _writeIdx(0)
         , _readIdx(0)
-        , _dmaPrevPos(0)
     {
         _buf = new uint8_t[bufSize];
     }

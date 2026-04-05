@@ -11,6 +11,8 @@
 #include "ssd1306.h"
 #include "tft_fonts.h"
 #include "TinyGPSPlus.h"
+#include "TinyGPSPlus_UART.h"
+#include "AD9850.h"
 
 extern "C" {
                         // HAL libraries
@@ -28,6 +30,8 @@ extern "C" {
  * Hardware object instantiation
  * ---------------------------------------------------------------------- */
 Si5351 si5351(&hi2c1);
+AD9850 dds(GPIOA, GPIO_PIN_2, GPIO_PIN_3, GPIO_PIN_4, GPIO_PIN_5);
+TinyGPSPlusUART_Polling gpsUART(huart1);
 
 RotaryEncoder encoder(
     ENCODER_CLOCK_GPIO_Port, ENCODER_CLOCK_Pin,
@@ -70,32 +74,15 @@ static uint64_t frequency                    = static_cast<uint64_t>(14.074e6);
 static uint32_t update_display_time          = 100;
 static uint32_t previous_update_display_time = 0;
 
-/* -------------------------------------------------------------------------
- * Helper — split Hz into MHz + kHz parts and format into buffer
- * ---------------------------------------------------------------------- */
-static void formatFrequency(uint64_t hz)
-{
-    const int mhz = static_cast<int>(hz / 1'000'000ULL);
-    const int khz = static_cast<int>((hz - mhz * 1'000'000ULL) / 1'000ULL);
-    snprintf(buffer, sizeof(buffer), "%d.%03d MHz", mhz, khz);
-}
+static double latitude = 0;
+static double longitude = 0;
 
 /* -------------------------------------------------------------------------
- * Helper — update both displays with current frequency string
+ * User defined functions
  * ---------------------------------------------------------------------- */
-static void updateDisplays()
-{
-    // SSD1306
-    oled.SetCursor(0, 0);
-    oled.WriteString("Frequency: ", Font_11x18, SSD1306::Color::White);
-    oled.SetCursor(0, 18);
-    oled.WriteString(buffer, Font_11x18, SSD1306::Color::White);
-    oled.UpdateScreen();
 
-    // ST7789
-    tft.WriteString(0,  0, "Frequency: ", TFT_Font_16x26, Color::RED,   Color::BLACK);
-    tft.WriteString(0, 26, buffer,         TFT_Font_16x26, Color::GREEN, Color::BLACK);
-}
+static void formatFrequency(uint64_t hz);
+static void updateDisplays(void);
 
 /* -------------------------------------------------------------------------
  * Main application entry point (called from main.c)
@@ -126,17 +113,20 @@ int mainCpp()
 
     oled.SetCursor(0, 36);
     oled.WriteString(wspr_poruka, Font_11x18, SSD1306::Color::White);
+    tft.WriteString(0, 52, wspr_poruka, TFT_Font_16x26, Color::BLUE, Color::BLACK);
     updateDisplays();
-
-    tft.WriteString(0, 54, wspr_poruka, TFT_Font_16x26, Color::BLUE, Color::BLACK);
 
     /* --- Si5351 + beacon init ------------------------------------------ */
     si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25000000, 0);
     si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA);
     si5351.output_enable(SI5351_CLK0, 0);
 
+    /* --- AD9850 DDS init ----------------------------------------------- */
+    dds.begin();
+    dds.outputEnable(false);
+
     beacon.init(TX_FREQ_HZ, XO_FREQ_HZ, CORRECTION);
-    beacon.transmit(wspr_poruka);
+    //beacon.transmit(wspr_poruka);
 
     /* --- Clear displays after TX --------------------------------------- */
     oled.Fill(SSD1306::Color::Black);
@@ -146,15 +136,54 @@ int mainCpp()
     /* --- Main loop ----------------------------------------------------- */
     while (true) {
         encoder.update();
+        gpsUART.update();
+        TinyGPSPlus &gps = gpsUART.gps;
 
         if (HAL_GetTick() - previous_update_display_time > update_display_time) {
+        	if (gps.location.isUpdated() && gps.location.isValid()) {
+        		latitude = gps.location.lat();
+        	    longitude = gps.location.lng();
+        	}
+
             formatFrequency(frequency);
             updateDisplays();
 
             si5351.set_freq(frequency * 100ULL, SI5351_CLK0);
+            dds.setFrequency(static_cast<float>(frequency));
+            dds.outputEnable(true);
             // si5351.output_enable(SI5351_CLK0, 1);
 
             previous_update_display_time = HAL_GetTick();
         }
     }
+}
+
+
+/* -------------------------------------------------------------------------
+ * Helper — split Hz into MHz + kHz parts and format into buffer
+ * ---------------------------------------------------------------------- */
+static void formatFrequency(uint64_t hz)
+{
+    const int mhz = static_cast<int>(hz / 1'000'000ULL);
+    const int khz = static_cast<int>((hz - mhz * 1'000'000ULL) / 1'000ULL);
+    snprintf(buffer, sizeof(buffer), "%d.%03d MHz", mhz, khz);
+}
+
+/* -------------------------------------------------------------------------
+ * Helper — update both displays with current frequency string
+ * ---------------------------------------------------------------------- */
+static void updateDisplays(void)
+{
+    // SSD1306
+	oled.Fill(SSD1306::Color::Black);
+    oled.SetCursor(0, 0);
+    oled.WriteString("Frequency: ", Font_11x18, SSD1306::Color::White);
+    oled.SetCursor(0, 18);
+    oled.WriteString(buffer, Font_11x18, SSD1306::Color::White);
+    oled.UpdateScreen();
+
+    // ST7789
+    tft.FillColor(Color::BLACK);
+    tft.WriteString(0,  0, "Frequency: ", TFT_Font_16x26, Color::RED,   Color::BLACK);
+    tft.WriteString(0, 26, buffer,        TFT_Font_16x26, Color::GREEN, Color::BLACK);
 }
