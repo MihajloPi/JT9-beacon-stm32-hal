@@ -59,6 +59,8 @@ int mainCpp(void);
 /* Private defines -----------------------------------------------------------*/
 #define LED_ERROR_Pin GPIO_PIN_13
 #define LED_ERROR_GPIO_Port GPIOC
+#define AD9850_CLOCK_Pin GPIO_PIN_1
+#define AD9850_CLOCK_GPIO_Port GPIOA
 #define ST7789_DC_Pin GPIO_PIN_2
 #define ST7789_DC_GPIO_Port GPIOA
 #define ST7789_RST_Pin GPIO_PIN_3
@@ -79,6 +81,12 @@ int mainCpp(void);
 #define ENCODER_DATA_GPIO_Port GPIOA
 #define ENCODER_CLOCK_Pin GPIO_PIN_9
 #define ENCODER_CLOCK_GPIO_Port GPIOA
+#define AD9850_RESET_Pin GPIO_PIN_11
+#define AD9850_RESET_GPIO_Port GPIOA
+#define AD9850_LOAD_Pin GPIO_PIN_12
+#define AD9850_LOAD_GPIO_Port GPIOA
+#define AD9850_DATA_Pin GPIO_PIN_13
+#define AD9850_DATA_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 

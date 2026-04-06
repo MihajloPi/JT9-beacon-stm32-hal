@@ -30,7 +30,7 @@ extern "C" {
  * Hardware object instantiation
  * ---------------------------------------------------------------------- */
 Si5351 si5351(&hi2c1);
-AD9850 dds(GPIOA, GPIO_PIN_2, GPIO_PIN_3, GPIO_PIN_4, GPIO_PIN_5);
+AD9850 dds(GPIOA, GPIO_PIN_1, GPIO_PIN_11, GPIO_PIN_12, GPIO_PIN_13);
 TinyGPSPlusUART_Polling gpsUART(huart1);
 
 RotaryEncoder encoder(
@@ -39,7 +39,8 @@ RotaryEncoder encoder(
     ENCODER_SWITCH_GPIO_Port, ENCODER_SWITCH_Pin
 );
 
-Beacon beacon(si5351, &htim2, GPIOC, GPIO_PIN_13);
+//Beacon beacon(si5351, &htim2, GPIOC, GPIO_PIN_13);
+Beacon beacon(dds, &htim2, GPIOC, GPIO_PIN_13);
 
 ST7789 tft(
     &hspi1,

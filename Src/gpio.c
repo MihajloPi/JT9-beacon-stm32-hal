@@ -54,7 +54,8 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(LED_ERROR_GPIO_Port, LED_ERROR_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, ST7789_DC_Pin|ST7789_RST_Pin|ST7789_CS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, AD9850_CLOCK_Pin|ST7789_DC_Pin|ST7789_RST_Pin|ST7789_CS_Pin
+                          |AD9850_RESET_Pin|AD9850_LOAD_Pin|AD9850_DATA_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, DDS_CLK_Pin|DDS_WD_Pin|DDS_DATA_Pin|DDS_RESET_Pin, GPIO_PIN_RESET);
@@ -66,8 +67,10 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED_ERROR_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : ST7789_DC_Pin ST7789_RST_Pin ST7789_CS_Pin */
-  GPIO_InitStruct.Pin = ST7789_DC_Pin|ST7789_RST_Pin|ST7789_CS_Pin;
+  /*Configure GPIO pins : AD9850_CLOCK_Pin ST7789_DC_Pin ST7789_RST_Pin ST7789_CS_Pin
+                           AD9850_RESET_Pin AD9850_LOAD_Pin AD9850_DATA_Pin */
+  GPIO_InitStruct.Pin = AD9850_CLOCK_Pin|ST7789_DC_Pin|ST7789_RST_Pin|ST7789_CS_Pin
+                          |AD9850_RESET_Pin|AD9850_LOAD_Pin|AD9850_DATA_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
