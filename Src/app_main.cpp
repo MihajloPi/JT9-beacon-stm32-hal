@@ -29,8 +29,8 @@ extern "C" {
 /* -------------------------------------------------------------------------
  * Hardware object instantiation
  * ---------------------------------------------------------------------- */
-Si5351 si5351(&hi2c1);
-AD9850 dds(AD9850_CLOCK_GPIO_Port, AD9850_CLOCK_Pin, AD9850_RESET_Pin, AD9850_LOAD_Pin, AD9850_DATA_Pin);
+//Si5351 si5351(&hi2c1);
+AD9850 dds(AD9850_CLOCK_GPIO_Port, AD9850_CLOCK_Pin, AD9850_RESET_Pin, AD9850_DATA_Pin, AD9850_LOAD_Pin);
 TinyGPSPlusUART_Polling gpsUART(huart1);
 
 RotaryEncoder encoder(
@@ -71,7 +71,7 @@ static constexpr uint64_t TX_FREQ_HZ = 28079600ULL;
 static constexpr uint32_t XO_FREQ_HZ = 0;
 static constexpr int32_t  CORRECTION  = 0;
 
-static uint64_t frequency                    = static_cast<uint64_t>(14.074e6);
+static uint64_t frequency                    = static_cast<uint64_t>(28.074e6);
 static uint32_t update_display_time          = 100;
 static uint32_t previous_update_display_time = 0;
 
@@ -114,13 +114,13 @@ int mainCpp()
 
     oled.SetCursor(0, 36);
     oled.WriteString(wspr_poruka, Font_11x18, SSD1306::Color::White);
-    tft.WriteString(0, 52, wspr_poruka, TFT_Font_16x26, Color::BLUE, Color::BLACK);
-    updateDisplays();
+    //oled.UpdateScreen();
+    tft.WriteString(0, 0, wspr_poruka, TFT_Font_16x26, Color::BLUE, Color::GREEN);
 
     /* --- Si5351 + beacon init ------------------------------------------ */
-    si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25000000, 0);
-    si5351.driveStrength(SI5351_CLK0, SI5351_DRIVE_8MA);
-    si5351.outputEnable(SI5351_CLK0, 0);
+    //si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25000000, 0);
+    //si5351.driveStrength(SI5351_CLK0, SI5351_DRIVE_8MA);
+    //si5351.outputEnable(SI5351_CLK0, 0);
 
     /* --- AD9850 DDS init ----------------------------------------------- */
     dds.begin();
@@ -128,6 +128,8 @@ int mainCpp()
 
     beacon.init(TX_FREQ_HZ, XO_FREQ_HZ, CORRECTION);
     beacon.transmit(wspr_poruka);
+
+    HAL_Delay(1000);
 
     /* --- Clear displays after TX --------------------------------------- */
     oled.Fill(SSD1306::Color::Black);
@@ -138,6 +140,7 @@ int mainCpp()
     while (true) {
         encoder.update();
         gpsUART.update();
+
         TinyGPSPlus &gps = gpsUART.gps;
 
         if (HAL_GetTick() - previous_update_display_time > update_display_time) {
@@ -149,10 +152,10 @@ int mainCpp()
             formatFrequency(frequency);
             updateDisplays();
 
-            si5351.setFreq(frequency * 100ULL, SI5351_CLK0);
+            //si5351.setFreq(frequency * 100ULL, SI5351_CLK0);
+            //si5351.outputEnable(SI5351_CLK0, 0);
             dds.setFrequency(static_cast<float>(frequency));
             dds.outputEnable(true);
-            si5351.outputEnable(SI5351_CLK0, 0);
 
             previous_update_display_time = HAL_GetTick();
         }
@@ -187,4 +190,5 @@ static void updateDisplays(void)
     tft.FillColor(Color::BLACK);
     tft.WriteString(0,  0, "Frequency: ", TFT_Font_16x26, Color::RED,   Color::BLACK);
     tft.WriteString(0, 26, buffer,        TFT_Font_16x26, Color::GREEN, Color::BLACK);
+
 }
