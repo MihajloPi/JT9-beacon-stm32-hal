@@ -75,8 +75,8 @@ int mainCpp(void);
 #define AD9850_RESET_GPIO_Port GPIOA
 #define AD9850_LOAD_Pin GPIO_PIN_12
 #define AD9850_LOAD_GPIO_Port GPIOA
-#define AD9850_DATA_Pin GPIO_PIN_13
-#define AD9850_DATA_GPIO_Port GPIOA
+#define AD9850_DATA_Pin GPIO_PIN_3
+#define AD9850_DATA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

@@ -30,7 +30,7 @@ extern "C" {
  * Hardware object instantiation
  * ---------------------------------------------------------------------- */
 Si5351 si5351(&hi2c1);
-AD9850 dds(GPIOA, GPIO_PIN_1, GPIO_PIN_11, GPIO_PIN_12, GPIO_PIN_13);
+AD9850 dds(AD9850_CLOCK_GPIO_Port, AD9850_CLOCK_Pin, AD9850_RESET_Pin, AD9850_LOAD_Pin, AD9850_DATA_Pin);
 TinyGPSPlusUART_Polling gpsUART(huart1);
 
 RotaryEncoder encoder(
@@ -124,10 +124,10 @@ int mainCpp()
 
     /* --- AD9850 DDS init ----------------------------------------------- */
     dds.begin();
-    dds.outputEnable(false);
+    dds.outputEnable(true);
 
     beacon.init(TX_FREQ_HZ, XO_FREQ_HZ, CORRECTION);
-    //beacon.transmit(wspr_poruka);
+    beacon.transmit(wspr_poruka);
 
     /* --- Clear displays after TX --------------------------------------- */
     oled.Fill(SSD1306::Color::Black);
@@ -152,7 +152,7 @@ int mainCpp()
             si5351.setFreq(frequency * 100ULL, SI5351_CLK0);
             dds.setFrequency(static_cast<float>(frequency));
             dds.outputEnable(true);
-            // si5351.output_enable(SI5351_CLK0, 1);
+            si5351.outputEnable(SI5351_CLK0, 0);
 
             previous_update_display_time = HAL_GetTick();
         }
