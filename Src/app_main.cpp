@@ -102,8 +102,8 @@ int mainCpp()
         });
 
     /* --- Display init -------------------------------------------------- */
-    oled.Init();
-    oled.Fill(SSD1306::Color::Black);
+    oled.init();
+    oled.fill(SSD1306::Color::Black);
 
     tft.Init();
     tft.SetRotation(2);
@@ -112,9 +112,10 @@ int mainCpp()
     /* --- Initial screen content ---------------------------------------- */
     formatFrequency(TX_FREQ_HZ);
 
-    oled.SetCursor(0, 36);
-    oled.WriteString(wspr_poruka, Font_11x18, SSD1306::Color::White);
-    //oled.UpdateScreen();
+    updateDisplays();
+    oled.setCursor(0, 36);
+    oled.writeString(wspr_poruka, Font_11x18, SSD1306::Color::White);
+    oled.updateScreen();
     tft.WriteString(0, 0, wspr_poruka, TFT_Font_16x26, Color::BLUE, Color::GREEN);
 
     /* --- Si5351 + beacon init ------------------------------------------ */
@@ -132,8 +133,8 @@ int mainCpp()
     HAL_Delay(1000);
 
     /* --- Clear displays after TX --------------------------------------- */
-    oled.Fill(SSD1306::Color::Black);
-    oled.UpdateScreen();
+    oled.fill(SSD1306::Color::Black);
+    oled.updateScreen();
     tft.FillColor(Color::BLACK);
 
     /* --- Main loop ----------------------------------------------------- */
@@ -179,12 +180,12 @@ static void formatFrequency(uint64_t hz)
 static void updateDisplays(void)
 {
     // SSD1306
-	oled.Fill(SSD1306::Color::Black);
-    oled.SetCursor(0, 0);
-    oled.WriteString("Frequency: ", Font_11x18, SSD1306::Color::White);
-    oled.SetCursor(0, 18);
-    oled.WriteString(buffer, Font_11x18, SSD1306::Color::White);
-    oled.UpdateScreen();
+	oled.fill(SSD1306::Color::Black);
+    oled.setCursor(0, 0);
+    oled.writeString("Frequency: ", Font_11x18, SSD1306::Color::White);
+    oled.setCursor(0, 18);
+    oled.writeString(buffer, Font_11x18, SSD1306::Color::White);
+    oled.updateScreen();
 
     // ST7789
     tft.FillColor(Color::BLACK);
